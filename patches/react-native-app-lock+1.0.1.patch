@@ -1,0 +1,112 @@
+diff --git a/RNAppLock.podspec b/RNAppLock.podspec
+index abc1234..def5678 100644
+--- a/RNAppLock.podspec
++++ b/RNAppLock.podspec
+@@ -13,9 +13,25 @@ Pod::Spec.new do |s|
+
+   s.source       = { :git => "https://github.com/your-org/react-native-app-lock.git", :tag => "v#{s.version}" }
+-  s.source_files = "ios/**/*.{swift,m,h}"
++  s.source_files = "ios/**/*.{swift,mm,h}"
+
+-  s.dependency "React-Core"
++  # AppLockModule.m has been replaced by AppLockModule.mm for New Architecture (ObjC++) compatibility
++  s.exclude_files = "ios/AppLockModule.m"
++
++  s.swift_version = "5.0"
++  s.requires_arc  = true
++
++  # DEFINES_MODULE: required so `import React` works in Swift with static libraries.
++  # SWIFT_OBJC_INTEROP_MODE=objcxx: required for New Architecture C++/Swift interop.
++  # CLANG_CXX_LANGUAGE_STANDARD: ensures C++20 standard used across the pod (matches the app target).
++  s.pod_target_xcconfig = {
++    "DEFINES_MODULE"              => "YES",
++    "SWIFT_OBJC_INTEROP_MODE"     => "objcxx",
++    "CLANG_CXX_LANGUAGE_STANDARD" => "c++20",
++    "OTHER_SWIFT_FLAGS"           => "$(inherited)",
++  }
++
++  s.dependency "React-Core"
+
+   # Required Apple frameworks for Screen Time / FamilyControls
+   s.frameworks = "FamilyControls", "ManagedSettings", "DeviceActivity"
+diff --git a/ios/AppLockModule.m b/ios/AppLockModule.m
+index abc1234..def5678 100644
+--- a/ios/AppLockModule.m
++++ b/ios/AppLockModule.m
+@@ -1,26 +1,2 @@
+-#import <React/RCTBridgeModule.h>
+-
+-RCT_EXTERN_MODULE(AppLockModule, NSObject)
+-
+-RCT_EXTERN_METHOD(requestAuthorization:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(getAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(presentAppPicker:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(shieldSelectedApps:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(shieldAppsFromEncoded:(NSString *)encoded
+-                  resolve:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(clearAllShields:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
+-
+-RCT_EXTERN_METHOD(getSavedSelection:(RCTPromiseResolveBlock)resolve
+-                  reject:(RCTPromiseRejectBlock)reject)
++// Replaced by AppLockModule.mm for React Native New Architecture (Objective-C++) compatibility.
+diff --git a/ios/AppLockModule.mm b/ios/AppLockModule.mm
+new file mode 100644
+index 0000000..abc1234
+--- /dev/null
++++ b/ios/AppLockModule.mm
+@@ -0,0 +1,33 @@
++#import <React/RCTBridgeModule.h>
++
++// Import the Swift-generated interface header for static library builds.
++// Without this, the linker cannot resolve AppLockModule Swift symbols.
++#if __has_include("RNAppLock-Swift.h")
++#import "RNAppLock-Swift.h"
++#endif
++
++@interface RCT_EXTERN_MODULE(AppLockModule, NSObject)
++
++RCT_EXTERN_METHOD(requestAuthorization:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(getAuthorizationStatus:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(presentAppPicker:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(shieldSelectedApps:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(shieldAppsFromEncoded:(NSString *)encoded
++                  resolve:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(clearAllShields:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++RCT_EXTERN_METHOD(getSavedSelection:(RCTPromiseResolveBlock)resolve
++                  reject:(RCTPromiseRejectBlock)reject)
++
++@end
+diff --git a/ios/AppLockModule.swift b/ios/AppLockModule.swift
+index abc1234..def5678 100644
+--- a/ios/AppLockModule.swift
++++ b/ios/AppLockModule.swift
+@@ -6,8 +6,8 @@ import FamilyControls
+ import ManagedSettings
+
+-@available(iOS 16.0, *)
+ @objc(AppLockModule)
++@available(iOS 16.0, *)
+ class AppLockModule: NSObject {
